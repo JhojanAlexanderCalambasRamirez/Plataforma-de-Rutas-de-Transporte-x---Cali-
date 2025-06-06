@@ -1,32 +1,23 @@
+// index.js
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 
 admin.initializeApp();
 const db = admin.firestore();
 
-exports.registrarUsuario = functions.https.onRequest(async (req, res) => {
-  if (req.method !== "POST") {
-    return res.status(405).send("Método no permitido");
-  }
+// Importar controladores
+const { registrarUsuario, obtenerBusesPorRuta, obtenerUbicacionBus } = require("./controllers/usuarioController");
+const { registrarConductor, actualizarUbicacion, publicarRuta } = require("./controllers/conductorController");
+const { obtenerRutas, eliminarRuta, eliminarUsuario, eliminarConductor } = require("./controllers/adminController");
 
-  const { nombre, correo, rol } = req.body;
-
-  if (!nombre || !correo || !rol) {
-    return res.status(400).send("Faltan datos obligatorios");
-  }
-
-  try {
-    const nuevoUsuario = {
-      nombre,
-      correo,
-      rol,
-      creadoEn: new Date() // ← ESTA línea reemplaza completamente el error
-    };
-
-    const docRef = await db.collection("usuarios").add(nuevoUsuario);
-    return res.status(201).send({ mensaje: "Usuario registrado", id: docRef.id });
-  } catch (error) {
-    console.error("ERROR DETALLE:", error);
-    return res.status(500).send("Error al registrar usuario");
-  }
-});
+// Registrar funciones
+exports.registrarUsuario = functions.https.onRequest(registrarUsuario);
+exports.registrarConductor = functions.https.onRequest(registrarConductor);
+exports.actualizarUbicacion = functions.https.onRequest(actualizarUbicacion);
+exports.publicarRuta = functions.https.onRequest(publicarRuta);
+exports.obtenerBusesPorRuta = functions.https.onRequest(obtenerBusesPorRuta);
+exports.obtenerUbicacionBus = functions.https.onRequest(obtenerUbicacionBus);
+exports.obtenerRutas = functions.https.onRequest(obtenerRutas);
+exports.eliminarRuta = functions.https.onRequest(eliminarRuta);
+exports.eliminarUsuario = functions.https.onRequest(eliminarUsuario);
+exports.eliminarConductor = functions.https.onRequest(eliminarConductor);
