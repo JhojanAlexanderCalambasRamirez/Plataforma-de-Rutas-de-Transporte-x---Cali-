@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel Pasajero</title>
+  <link rel="stylesheet" href="../Styles/styleUsuario.css">
+</head>
+<body>
+  <h1>Pasajero - Rutas Valle</h1>
+
+  <section>
+    <h2>Consultar Buses Activos por Ruta</h2>
+    <input type="text" id="rutaID" placeholder="ID de la Ruta">
+    <button onclick="consultarBuses()">Consultar</button>
+    <ul id="listaBuses"></ul>
+  </section>
+
+  <section>
+    <h2>Ver Ubicación de un Bus</h2>
+    <input type="text" id="busID" placeholder="ID del Bus">
+    <button onclick="verUbicacion()">Ver Ubicación</button>
+    <div id="ubicacionBus"></div>
+  </section>
+
+  <script>
+    const baseURL = "http://localhost:5001/rutas-valle/us-central1";
+
+    async function consultarBuses() {
+      const rutaID = document.getElementById("rutaID").value;
+      const res = await fetch(`${baseURL}/obtenerBusesPorRuta?rutaID=${rutaID}`);
+      const buses = await res.json();
+      const lista = document.getElementById("listaBuses");
+      lista.innerHTML = "";
+      buses.forEach(bus => {
+        const li = document.createElement("li");
+        li.textContent = `Bus ID: ${bus.id}, Placa: ${bus.placa}`;
+        lista.appendChild(li);
+      });
+    }
+
+    async function verUbicacion() {
+      const busID = document.getElementById("busID").value;
+      const res = await fetch(`${baseURL}/obtenerUbicacionBus?busID=${busID}`);
+      const ubicacion = await res.json();
+      const contenedor = document.getElementById("ubicacionBus");
+      contenedor.innerHTML = `Latitud: ${ubicacion.latitud}, Longitud: ${ubicacion.longitud}`;
+    }
+  </script>
+</body>
+</html>

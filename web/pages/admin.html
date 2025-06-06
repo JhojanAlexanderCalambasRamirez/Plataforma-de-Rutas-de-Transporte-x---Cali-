@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel Administrador</title>
+  <link rel="stylesheet" href="../Styles/styleAdmin.css">
+</head>
+<body>
+  <h1>Administrador - Rutas Valle</h1>
+
+  <section>
+    <h2>Rutas Registradas</h2>
+    <button onclick="obtenerRutas()">Actualizar Lista</button>
+    <ul id="listaRutas"></ul>
+  </section>
+
+  <section>
+    <h2>Usuarios Registrados</h2>
+    <button onclick="obtenerUsuarios()">Actualizar Lista</button>
+    <ul id="listaUsuarios"></ul>
+  </section>
+
+  <section>
+    <h2>Conductores Registrados</h2>
+    <button onclick="obtenerConductores()">Actualizar Lista</button>
+    <ul id="listaConductores"></ul>
+  </section>
+
+  <script>
+    const baseURL = "http://localhost:5001/rutas-valle/us-central1";
+
+    async function obtenerRutas() {
+      const res = await fetch(`${baseURL}/obtenerRutas`);
+      const rutas = await res.json();
+      const lista = document.getElementById("listaRutas");
+      lista.innerHTML = "";
+      rutas.forEach(r => {
+        const li = document.createElement("li");
+        li.innerHTML = `🚌 <b>${r.origen}</b> ➡ <b>${r.destino}</b> <button onclick=\"eliminarRuta('${r.id}')\">Eliminar</button>`;
+        lista.appendChild(li);
+      });
+    }
+
+    async function obtenerUsuarios() {
+      const res = await fetch(`${baseURL}/listarUsuariosPorRol?rol=admin,conductor,pasajero`);
+      const usuarios = await res.json();
+      const lista = document.getElementById("listaUsuarios");
+      lista.innerHTML = "";
+      usuarios.forEach(u => {
+        const li = document.createElement("li");
+        li.innerHTML = `👤 ${u.nombre} - ${u.correo} (${u.rol}) <button onclick=\"eliminarUsuario('${u.id}')\">Eliminar</button>`;
+        lista.appendChild(li);
+      });
+    }
+
+    async function obtenerConductores() {
+      const res = await fetch(`${baseURL}/listarConductores`);
+      const conductores = await res.json();
+      const lista = document.getElementById("listaConductores");
+      lista.innerHTML = "";
+      conductores.forEach(c => {
+        const li = document.createElement("li");
+        li.innerHTML = `🚗 Placa: ${c.placa} - Ruta: ${c.rutaAsignada} <button onclick=\"eliminarConductor('${c.id}')\">Eliminar</button>`;
+        lista.appendChild(li);
+      });
+    }
+
+    async function eliminarRuta(id) {
+      const res = await fetch(`${baseURL}/eliminarRuta?rutaID=${id}`, { method: "DELETE" });
+      alert(await res.text());
+      obtenerRutas();
+    }
+
+    async function eliminarUsuario(id) {
+      const res = await fetch(`${baseURL}/eliminarUsuario?usuarioID=${id}`, { method: "DELETE" });
+      alert(await res.text());
+      obtenerUsuarios();
+    }
+
+    async function eliminarConductor(id) {
+      const res = await fetch(`${baseURL}/eliminarConductor?conductorID=${id}`, { method: "DELETE" });
+      alert(await res.text());
+      obtenerConductores();
+    }
+  </script>
+</body>
+</html>
