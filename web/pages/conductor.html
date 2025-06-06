@@ -10,62 +10,50 @@
 
   <section>
     <h2>Registro y Ruta</h2>
-    <input type="text" id="usuarioID" placeholder="ID del Usuario (conductor)">
+    <input type="text" id="nombre" placeholder="Tu Nombre">
     <input type="text" id="placa" placeholder="Placa del Vehículo">
     <input type="text" id="rutaAsignada" placeholder="Ruta Asignada">
-    <button onclick="registrarConductor()">Registrar Conductor</button>
-  </section>
-
-  <section>
-    <h2>Iniciar Seguimiento GPS</h2>
-    <input type="text" id="busID" placeholder="ID del Bus">
-    <button onclick="iniciarGPS()">Compartir Ubicación</button>
+    <button onclick="registrarYCompartir()">Registrar y Compartir Ubicación</button>
   </section>
 
   <script>
     const baseURL = "http://localhost:5001/rutas-valle/us-central1";
-    let watchID = null;
 
-    async function registrarConductor() {
-      const usuarioID = document.getElementById("usuarioID").value;
+    async function registrarYCompartir() {
+      const nombre = document.getElementById("nombre").value;
       const placa = document.getElementById("placa").value;
       const rutaAsignada = document.getElementById("rutaAsignada").value;
 
-      const res = await fetch(`${baseURL}/registrarConductor`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ usuarioID, placa, rutaAsignada })
-      });
-
-      alert(await res.text());
-    }
-
-    async function enviarUbicacion(busID, lat, lng) {
-      await fetch(`${baseURL}/actualizarUbicacion`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ busID, latitud: lat, longitud: lng })
-      });
-    }
-
-    function iniciarGPS() {
-      const busID = document.getElementById("busID").value;
-
-      if (!navigator.geolocation) {
-        alert("Geolocalización no es soportada por tu navegador");
+      if (!nombre || !placa || !rutaAsignada) {
+        alert("Por favor completa todos los campos.");
         return;
       }
 
-      watchID = navigator.geolocation.watchPosition(
-        position => {
-          const { latitude, longitude } = position.coords;
-          enviarUbicacion(busID, latitude, longitude);
-        },
-        error => alert("Error obteniendo ubicación: " + error.message),
-        { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
-      );
+      if (!navigator.geolocation) {
+        alert("Tu navegador no soporta geolocalización.");
+        return;
+      }
 
-      alert("Ubicación en tiempo real activada.");
+      navigator.geolocation.getCurrentPosition(async position => {
+        const { latitude, longitude } = position.coords;
+
+        const res = await fetch(`${baseURL}/registrarConductor`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nombre,
+            placa,
+            rutaAsignada,
+            latitud: latitude,
+            longitud: longitude
+          })
+        });
+
+        const data = await res.json();
+        alert(data.mensaje || "Conductor registrado");
+      }, error => {
+        alert("Error al obtener ubicación: " + error.message);
+      });
     }
   </script>
 </body>

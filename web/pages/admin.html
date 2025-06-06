@@ -9,18 +9,6 @@
   <h1>Administrador - Rutas Valle</h1>
 
   <section>
-    <h2>Rutas Registradas</h2>
-    <button onclick="obtenerRutas()">Actualizar Lista</button>
-    <ul id="listaRutas"></ul>
-  </section>
-
-  <section>
-    <h2>Usuarios Registrados</h2>
-    <button onclick="obtenerUsuarios()">Actualizar Lista</button>
-    <ul id="listaUsuarios"></ul>
-  </section>
-
-  <section>
     <h2>Conductores Registrados</h2>
     <button onclick="obtenerConductores()">Actualizar Lista</button>
     <ul id="listaConductores"></ul>
@@ -36,7 +24,8 @@
       lista.innerHTML = "";
       rutas.forEach(r => {
         const li = document.createElement("li");
-        li.innerHTML = `🚌 <b>${r.origen}</b> ➡ <b>${r.destino}</b> <button onclick=\"eliminarRuta('${r.id}')\">Eliminar</button>`;
+        li.innerHTML = `🚌 <b>${r.origen}</b> ➡ <b>${r.destino}</b>
+          <button onclick="eliminarRuta('${r.id}')">Eliminar</button>`;
         lista.appendChild(li);
       });
     }
@@ -48,7 +37,8 @@
       lista.innerHTML = "";
       usuarios.forEach(u => {
         const li = document.createElement("li");
-        li.innerHTML = `👤 ${u.nombre} - ${u.correo} (${u.rol}) <button onclick=\"eliminarUsuario('${u.id}')\">Eliminar</button>`;
+        li.innerHTML = `👤 ${u.nombre} (${u.rol})
+          <button onclick="eliminarUsuario('${u.id}')">Eliminar</button>`;
         lista.appendChild(li);
       });
     }
@@ -60,7 +50,12 @@
       lista.innerHTML = "";
       conductores.forEach(c => {
         const li = document.createElement("li");
-        li.innerHTML = `🚗 Placa: ${c.placa} - Ruta: ${c.rutaAsignada} <button onclick=\"eliminarConductor('${c.id}')\">Eliminar</button>`;
+        li.innerHTML = `
+          👤 <b>${c.nombre}</b><br>
+          🚗 <b>Placa:</b> ${c.placa}<br>
+          🛣️ <b>Ruta:</b> ${c.rutaAsignada}
+          <button onclick="eliminarConductor('${c.id}')">Eliminar</button>
+        `;
         lista.appendChild(li);
       });
     }

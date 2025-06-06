@@ -1,83 +1,55 @@
 const admin = require("firebase-admin");
 const db = admin.firestore();
 
+// ✅ Registrar conductor y activar seguimiento GPS
 const registrarConductor = async (req, res) => {
   if (req.method !== "POST") return res.status(405).send("Método no permitido");
 
-  const { usuarioID, placa, rutaAsignada } = req.body;
-  if (!usuarioID || !placa || !rutaAsignada) {
+  const { nombre, placa, rutaAsignada, latitud, longitud } = req.body;
+  if (!nombre || !placa || !rutaAsignada || !latitud || !longitud) {
     return res.status(400).send("Faltan datos obligatorios");
   }
 
   try {
-    const userRef = db.collection("usuarios").doc(usuarioID);
-    const userDoc = await userRef.get();
+    // 1. Crear el usuario como conductor
+    const userRef = await db.collection("usuarios").add({
+      nombre,
+      correo: "",
+      rol: "conductor",
+      estado: "activo",
+      creadoEn: new Date()
+    });
 
-    if (!userDoc.exists) return res.status(404).send("Usuario no encontrado");
-    const data = userDoc.data();
-    if (data.rol !== "conductor") {
-      return res.status(403).send("El usuario no es conductor");
-    }
-
-    const nuevoConductor = {
+    // 2. Crear el documento del conductor
+    const conductorRef = await db.collection("conductores").add({
       userRef,
       placa,
       rutaAsignada,
-      activo: false
-    };
+      activo: true
+    });
 
-    const ref = await db.collection("conductores").add(nuevoConductor);
-    return res.status(201).send({ mensaje: "Conductor registrado", id: ref.id });
+    // 3. Crear el bus asociado al conductor
+    await db.collection("buses").doc(conductorRef.id).set({
+      conductorID: conductorRef.id,
+      placa,
+      rutaID: rutaAsignada,
+      activo: true
+    });
+
+    // 4. Registrar ubicación inicial
+    await db.collection("ubicaciones").doc(conductorRef.id).set({
+      latitud,
+      longitud,
+      timestamp: new Date()
+    });
+
+    return res.status(201).send({ mensaje: "Conductor, bus y ubicación registrados", busID: conductorRef.id });
   } catch (error) {
-    console.error("ERROR registrarConductor:", error);
+    console.error("❌ ERROR registrarConductor:", error);
     return res.status(500).send("Error al registrar conductor");
   }
 };
 
-const actualizarUbicacion = async (req, res) => {
-  if (req.method !== "POST") return res.status(405).send("Método no permitido");
-
-  const { busID, latitud, longitud } = req.body;
-  if (!busID || !latitud || !longitud) {
-    return res.status(400).send("Faltan datos obligatorios");
-  }
-
-  try {
-    const ubicacion = {
-      latitud,
-      longitud,
-      timestamp: new Date()
-    };
-
-    await db.collection("ubicaciones").doc(busID).set(ubicacion);
-    return res.status(200).send({ mensaje: "Ubicación actualizada" });
-  } catch (error) {
-    console.error("ERROR actualizarUbicacion:", error);
-    return res.status(500).send("Error al actualizar ubicación");
-  }
-};
-
-const publicarRuta = async (req, res) => {
-  if (req.method !== "POST") return res.status(405).send("Método no permitido");
-
-  const { busID, rutaID } = req.body;
-  if (!busID || !rutaID) return res.status(400).send("Faltan datos");
-
-  try {
-    await db.collection("buses").doc(busID).set({
-      rutaID,
-      activo: true
-    }, { merge: true });
-
-    return res.status(200).send({ mensaje: "Ruta publicada" });
-  } catch (error) {
-    console.error("ERROR publicarRuta:", error);
-    return res.status(500).send("Error al publicar ruta");
-  }
-};
-
 module.exports = {
-  registrarConductor,
-  actualizarUbicacion,
-  publicarRuta
+  registrarConductor
 };

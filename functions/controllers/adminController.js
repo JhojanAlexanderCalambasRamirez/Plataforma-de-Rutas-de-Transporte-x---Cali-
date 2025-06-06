@@ -1,7 +1,7 @@
 const admin = require("firebase-admin");
 const db = admin.firestore();
 
-// 1. Obtener todas las rutas
+// Obtener todas las rutas
 const obtenerRutas = async (req, res) => {
   if (req.method !== "GET") return res.status(405).send("Método no permitido");
 
@@ -16,7 +16,7 @@ const obtenerRutas = async (req, res) => {
   }
 };
 
-// 2. Eliminar ruta por ID
+// Eliminar ruta por ID
 const eliminarRuta = async (req, res) => {
   if (req.method !== "DELETE") return res.status(405).send("Método no permitido");
 
@@ -32,7 +32,7 @@ const eliminarRuta = async (req, res) => {
   }
 };
 
-// 3. Eliminar usuario por ID
+// Eliminar usuario por ID
 const eliminarUsuario = async (req, res) => {
   if (req.method !== "DELETE") return res.status(405).send("Método no permitido");
 
@@ -48,7 +48,7 @@ const eliminarUsuario = async (req, res) => {
   }
 };
 
-// 4. Eliminar conductor por ID
+// Eliminar conductor por ID
 const eliminarConductor = async (req, res) => {
   if (req.method !== "DELETE") return res.status(405).send("Método no permitido");
 
@@ -64,9 +64,62 @@ const eliminarConductor = async (req, res) => {
   }
 };
 
+// Listar usuarios por rol
+const listarUsuariosPorRol = async (req, res) => {
+  if (req.method !== "GET") return res.status(405).send("Método no permitido");
+
+  const { rol } = req.query;
+  if (!rol) return res.status(400).send("Rol requerido");
+
+  try {
+    const roles = rol.split(",");
+    const usuarios = [];
+
+    for (const r of roles) {
+      const snapshot = await db.collection("usuarios").where("rol", "==", r.trim()).get();
+      snapshot.forEach(doc => usuarios.push({ id: doc.id, ...doc.data() }));
+    }
+
+    return res.status(200).json(usuarios);
+  } catch (error) {
+    console.error("ERROR listarUsuariosPorRol:", error);
+    return res.status(500).send("Error al listar usuarios");
+  }
+};
+
+// Listar conductores con nombre resuelto
+const listarConductores = async (req, res) => {
+  if (req.method !== "GET") return res.status(405).send("Método no permitido");
+
+  try {
+    const snapshot = await db.collection("conductores").get();
+    const conductores = [];
+
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+      const usuarioDoc = await data.userRef.get();
+      const usuarioData = usuarioDoc.data();
+
+      conductores.push({
+        id: doc.id,
+        nombre: usuarioData?.nombre || "Sin nombre",
+        placa: data.placa,
+        rutaAsignada: data.rutaAsignada
+      });
+    }
+
+    return res.status(200).json(conductores);
+  } catch (error) {
+    console.error("ERROR listarConductores:", error);
+    return res.status(500).send("Error al listar conductores");
+  }
+};
+
 module.exports = {
   obtenerRutas,
   eliminarRuta,
   eliminarUsuario,
-  eliminarConductor
+  eliminarConductor,
+  listarUsuariosPorRol,
+  listarConductores
 };

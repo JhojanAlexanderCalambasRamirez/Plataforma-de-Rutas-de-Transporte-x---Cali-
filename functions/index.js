@@ -8,7 +8,7 @@ const db = admin.firestore();
 // Importar controladores
 const { registrarUsuario, obtenerBusesPorRuta, obtenerUbicacionBus } = require("./controllers/usuarioController");
 const { registrarConductor, actualizarUbicacion, publicarRuta } = require("./controllers/conductorController");
-const { obtenerRutas, eliminarRuta, eliminarUsuario, eliminarConductor } = require("./controllers/adminController");
+const { obtenerRutas, eliminarRuta, eliminarUsuario, eliminarConductor, listarUsuariosPorRol, listarConductores } = require("./controllers/adminController");
 
 // Registrar funciones
 exports.registrarUsuario = functions.https.onRequest(registrarUsuario);
@@ -21,3 +21,7 @@ exports.obtenerRutas = functions.https.onRequest(obtenerRutas);
 exports.eliminarRuta = functions.https.onRequest(eliminarRuta);
 exports.eliminarUsuario = functions.https.onRequest(eliminarUsuario);
 exports.eliminarConductor = functions.https.onRequest(eliminarConductor);
+exports.listarUsuariosPorRol = functions.https.onRequest(listarUsuariosPorRol);
+exports.listarConductores = functions.https.onRequest(listarConductores);
+
+
