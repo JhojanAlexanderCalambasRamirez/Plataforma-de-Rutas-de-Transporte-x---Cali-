@@ -1,56 +1,29 @@
 body {
   font-family: Arial, sans-serif;
-  margin: 2rem;
-  background-color: #f0fdf4;
-  color: #222;
+  background-color: #eaf3f9;
+  padding: 2rem;
+  margin: 0;
 }
 
 h1 {
+  color: #007BFF;
   text-align: center;
-  color: #007bff;
 }
 
 section {
-  background-color: #fff;
-  padding: 1rem 2rem;
-  margin-bottom: 2rem;
+  margin-top: 1.5rem;
+}
+
+.panel-conductor {
+  background-color: white;
+  padding: 1rem;
+  margin-bottom: 1rem;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
-input[type="text"] {
-  padding: 0.5rem;
-  width: 280px;
-  margin: 0.3rem 0.5rem 1rem 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-button {
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
-  border: none;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-ul li {
-  padding: 0.5rem;
-  border-bottom: 1px solid #ddd;
-}
-
-#ubicacionBus {
+#mapa {
+  width: 100%;
+  height: 400px;
   margin-top: 1rem;
-  font-weight: bold;
-  color: #444;
 }

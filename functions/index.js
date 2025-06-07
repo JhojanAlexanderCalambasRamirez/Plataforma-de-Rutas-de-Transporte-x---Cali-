@@ -1,27 +1,24 @@
 // index.js
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
+const express = require("express");
+const morgan = require("morgan");
+const cors = require("cors");
 
-admin.initializeApp();
-const db = admin.firestore();
+const adminRoutes = require("./routes/adminRoutes");
+const conductorRoutes = require("./routes/conductorRoutes");
+const usuarioRoutes = require("./routes/usuarioRoutes");
 
-// Importar controladores
-const { registrarUsuario, obtenerBusesPorRuta, obtenerUbicacionBus } = require("./controllers/usuarioController");
-const { registrarConductor, actualizarUbicacion, publicarRuta } = require("./controllers/conductorController");
-const { obtenerRutas, eliminarRuta, eliminarUsuario, eliminarConductor, listarUsuariosPorRol, listarConductores } = require("./controllers/adminController");
+const app = express();
+app.use(cors());
+app.use(morgan("dev"));
+app.use(express.json());
 
-// Registrar funciones
-exports.registrarUsuario = functions.https.onRequest(registrarUsuario);
-exports.registrarConductor = functions.https.onRequest(registrarConductor);
-exports.actualizarUbicacion = functions.https.onRequest(actualizarUbicacion);
-exports.publicarRuta = functions.https.onRequest(publicarRuta);
-exports.obtenerBusesPorRuta = functions.https.onRequest(obtenerBusesPorRuta);
-exports.obtenerUbicacionBus = functions.https.onRequest(obtenerUbicacionBus);
-exports.obtenerRutas = functions.https.onRequest(obtenerRutas);
-exports.eliminarRuta = functions.https.onRequest(eliminarRuta);
-exports.eliminarUsuario = functions.https.onRequest(eliminarUsuario);
-exports.eliminarConductor = functions.https.onRequest(eliminarConductor);
-exports.listarUsuariosPorRol = functions.https.onRequest(listarUsuariosPorRol);
-exports.listarConductores = functions.https.onRequest(listarConductores);
+// Montar rutas
+app.use("/admin", adminRoutes);
+app.use("/conductor", conductorRoutes);
+app.use("/usuario", usuarioRoutes);
 
-
+// Iniciar servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Backend corriendo en http://localhost:${PORT}`);
+});

@@ -1,60 +1,31 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Panel Conductor</title>
-  <link rel="stylesheet" href="../Styles/styleConductor.css">
+    <meta charset="UTF-8" />
+    <title>Conductor - Rutas Valle</title>
+    <link rel="stylesheet" href="../Styles/styleConductor.css" />
 </head>
+
 <body>
-  <h1>Conductor - Rutas Valle</h1>
+    <h1>Conductor - Registro de Ruta</h1>
+    <!-- ... -->
+    <form id="formConductor">
+        <label>Nombre:<input type="text" name="nombre" required /></label><br>
+        <label>Placa:<input type="text" name="placa" required /></label><br>
+        <label>Ruta Asignada:<input type="text" name="rutaAsignada" required /></label><br>
 
-  <section>
-    <h2>Registro y Ruta</h2>
-    <input type="text" id="nombre" placeholder="Tu Nombre">
-    <input type="text" id="placa" placeholder="Placa del Vehículo">
-    <input type="text" id="rutaAsignada" placeholder="Ruta Asignada">
-    <button onclick="registrarYCompartir()">Registrar y Compartir Ubicación</button>
-  </section>
+        <!-- Campos ocultos para lat/lng -->
+        <input type="hidden" name="latitud" />
+        <input type="hidden" name="longitud" />
 
-  <script>
-    const baseURL = "http://localhost:5001/rutas-valle/us-central1";
+        <button type="submit">Registrar Ruta</button>
+    </form>
+    <div id="mensajeRegistro"></div>
 
-    async function registrarYCompartir() {
-      const nombre = document.getElementById("nombre").value;
-      const placa = document.getElementById("placa").value;
-      const rutaAsignada = document.getElementById("rutaAsignada").value;
+    <script src="../app.js"></script>
+    <script src="conductor.js"></script>
 
-      if (!nombre || !placa || !rutaAsignada) {
-        alert("Por favor completa todos los campos.");
-        return;
-      }
-
-      if (!navigator.geolocation) {
-        alert("Tu navegador no soporta geolocalización.");
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(async position => {
-        const { latitude, longitude } = position.coords;
-
-        const res = await fetch(`${baseURL}/registrarConductor`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nombre,
-            placa,
-            rutaAsignada,
-            latitud: latitude,
-            longitud: longitude
-          })
-        });
-
-        const data = await res.json();
-        alert(data.mensaje || "Conductor registrado");
-      }, error => {
-        alert("Error al obtener ubicación: " + error.message);
-      });
-    }
-  </script>
 </body>
+
 </html>

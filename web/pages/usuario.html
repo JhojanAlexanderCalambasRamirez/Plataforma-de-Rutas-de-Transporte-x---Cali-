@@ -2,74 +2,25 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Panel Pasajero</title>
+  <title>Pasajero - Rutas Valle</title>
   <link rel="stylesheet" href="../Styles/styleUsuario.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
   <h1>Pasajero - Rutas Valle</h1>
 
   <section>
-    <h2>Publicaciones Activas</h2>
-    <div id="panelesConductores" class="paneles-container"></div>
+    <h2>Rutas Disponibles</h2>
+    <div id="panelesConductores"></div>
   </section>
 
   <section>
     <h2>Ubicación en Tiempo Real</h2>
-    <div id="mapa" style="width: 100%; height: 400px;"></div>
+    <div id="mapa" style="height: 400px;"></div>
   </section>
 
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjLcnhQNp_ncRs1VCche6hH9L4ln3HPvw"></script>
-  <script>
-    const baseURL = "http://localhost:5001/rutas-valle/us-central1";
-    let mapa;
-    let marcador;
-
-    async function obtenerPublicacionesActivas() {
-      const res = await fetch(`${baseURL}/listarConductores`);
-      const data = await res.json();
-      const contenedor = document.getElementById("panelesConductores");
-      contenedor.innerHTML = "";
-
-      for (const conductor of data) {
-        // Obtener ubicación
-        const ubicacionRes = await fetch(`${baseURL}/obtenerUbicacionBus?busID=${conductor.placa}`);
-        if (!ubicacionRes.ok) continue;
-        const ubicacion = await ubicacionRes.json();
-
-        const div = document.createElement("div");
-        div.className = "panel-conductor";
-        div.innerHTML = `
-          <p><strong>Conductor:</strong> ${conductor.userRef.id}</p>
-          <p><strong>Placa:</strong> ${conductor.placa}</p>
-          <p><strong>Ruta:</strong> ${conductor.rutaAsignada}</p>
-          <button onclick="centrarEnMapa(${ubicacion.latitud}, ${ubicacion.longitud})">Ver en Mapa</button>
-        `;
-        contenedor.appendChild(div);
-      }
-    }
-
-    function iniciarMapa() {
-      mapa = new google.maps.Map(document.getElementById("mapa"), {
-        center: { lat: 3.45, lng: -76.53 },
-        zoom: 10,
-      });
-    }
-
-    function centrarEnMapa(lat, lng) {
-      const posicion = { lat, lng };
-      mapa.setCenter(posicion);
-      mapa.setZoom(14);
-
-      if (!marcador) {
-        marcador = new google.maps.Marker({ map: mapa });
-      }
-      marcador.setPosition(posicion);
-    }
-
-    window.onload = () => {
-      iniciarMapa();
-      obtenerPublicacionesActivas();
-    };
-  </script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="../app.js"></script>
+  <script src="usuario.js"></script>
 </body>
 </html>

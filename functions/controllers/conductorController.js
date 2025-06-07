@@ -1,55 +1,64 @@
-const admin = require("firebase-admin");
-const db = admin.firestore();
+// controllers/conductorController.js
+const { db } = require("../services/firebase");
 
-// ✅ Registrar conductor y activar seguimiento GPS
+// ✅ Registrar conductor con ubicación y ruta
 const registrarConductor = async (req, res) => {
-  if (req.method !== "POST") return res.status(405).send("Método no permitido");
-
-  const { nombre, placa, rutaAsignada, latitud, longitud } = req.body;
-  if (!nombre || !placa || !rutaAsignada || !latitud || !longitud) {
-    return res.status(400).send("Faltan datos obligatorios");
-  }
-
   try {
-    // 1. Crear el usuario como conductor
-    const userRef = await db.collection("usuarios").add({
-      nombre,
-      correo: "",
-      rol: "conductor",
-      estado: "activo",
-      creadoEn: new Date()
-    });
+    const { nombre, placa, rutaAsignada, latitud, longitud } = req.body;
 
-    // 2. Crear el documento del conductor
-    const conductorRef = await db.collection("conductores").add({
-      userRef,
+    if (!nombre || !placa || !rutaAsignada || !latitud || !longitud) {
+      return res.status(400).json({ error: "Faltan datos obligatorios" });
+    }
+
+    const timestamp = new Date();
+
+    // Guardar documento en "publicaciones"
+    await db.collection("publicaciones").doc(placa).set({
+      nombre,
       placa,
       rutaAsignada,
-      activo: true
+      latitud,
+      longitud,
+      timestamp
     });
 
-    // 3. Crear el bus asociado al conductor
-    await db.collection("buses").doc(conductorRef.id).set({
-      conductorID: conductorRef.id,
-      placa,
-      rutaID: rutaAsignada,
-      activo: true
+    // Guardar ubicación en "ubicaciones" (placa como ID)
+    await db.collection("ubicaciones").doc(placa).set({
+      latitud,
+      longitud,
+      timestamp
     });
 
-    // 4. Registrar ubicación inicial
-    await db.collection("ubicaciones").doc(conductorRef.id).set({
+    res.status(201).json({ mensaje: "Publicación registrada correctamente", placa });
+  } catch (error) {
+    console.error("❌ ERROR registrarConductor:", error);
+    res.status(500).json({ error: "Error al registrar publicación" });
+  }
+};
+
+// ✅ Actualizar ubicación (usado en seguimiento real)
+const actualizarUbicacion = async (req, res) => {
+  try {
+    const { placa, latitud, longitud } = req.body;
+
+    if (!placa || !latitud || !longitud) {
+      return res.status(400).json({ error: "Faltan datos de ubicación" });
+    }
+
+    await db.collection("ubicaciones").doc(placa).set({
       latitud,
       longitud,
       timestamp: new Date()
     });
 
-    return res.status(201).send({ mensaje: "Conductor, bus y ubicación registrados", busID: conductorRef.id });
+    res.status(200).json({ mensaje: "Ubicación actualizada correctamente" });
   } catch (error) {
-    console.error("❌ ERROR registrarConductor:", error);
-    return res.status(500).send("Error al registrar conductor");
+    console.error("❌ ERROR actualizarUbicacion:", error);
+    res.status(500).json({ error: "Error al actualizar ubicación" });
   }
 };
 
 module.exports = {
-  registrarConductor
+  registrarConductor,
+  actualizarUbicacion
 };

@@ -1,77 +1,53 @@
-const admin = require("firebase-admin");
-const db = admin.firestore();
+const { db } = require("../services/firebase");
 
-const registrarUsuario = async (req, res) => {
-  if (req.method !== "POST") return res.status(405).send("Método no permitido");
-
-  const { nombre, correo, rol } = req.body;
-  if (!nombre || !correo || !rol) {
-    return res.status(400).send("Faltan datos obligatorios");
-  }
-
+const listarPublicacionesActivas = async (req, res) => {
   try {
-    const nuevoUsuario = {
-      nombre,
-      correo,
-      rol,
-      estado: rol === "conductor" ? "pendiente" : "activo",
-      creadoEn: new Date()
-    };
-
-    const docRef = await db.collection("usuarios").add(nuevoUsuario);
-    return res.status(201).send({ mensaje: "Usuario registrado", id: docRef.id });
-  } catch (error) {
-    console.error("ERROR registrarUsuario:", error);
-    return res.status(500).send("Error al registrar usuario");
-  }
-};
-
-const obtenerBusesPorRuta = async (req, res) => {
-  if (req.method !== "GET") return res.status(405).send("Método no permitido");
-
-  const rutaID = req.query.rutaID;
-  if (!rutaID) return res.status(400).send("rutaID es obligatorio");
-
-  try {
-    const snapshot = await db.collection("buses")
-      .where("rutaID", "==", rutaID)
+    const snapshot = await db.collection("conductores")
       .where("activo", "==", true)
       .get();
 
-    const buses = [];
-    snapshot.forEach(doc => {
-      buses.push({ id: doc.id, ...doc.data() });
-    });
+    const publicaciones = [];
 
-    return res.status(200).json(buses);
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+
+      const ubicacionDoc = await db.collection("ubicaciones").doc(data.placa).get();
+      const ubicacion = ubicacionDoc.exists ? ubicacionDoc.data() : null;
+
+      publicaciones.push({
+        id: doc.id,
+        nombre: data.nombre || "Sin nombre",
+        placa: data.placa,
+        ruta: data.rutaAsignada,
+        fechaCreacion: data.creadoEn?.toDate() || null,
+        ubicacion
+      });
+    }
+
+    res.status(200).json(publicaciones);
   } catch (error) {
-    console.error("ERROR obtenerBusesPorRuta:", error);
-    return res.status(500).send("Error al obtener buses");
+    console.error("❌ ERROR listarPublicacionesActivas:", error);
+    res.status(500).json({ error: "Error al obtener publicaciones" });
   }
 };
 
 const obtenerUbicacionBus = async (req, res) => {
-  if (req.method !== "GET") return res.status(405).send("Método no permitido");
-
-  const busID = req.query.busID;
-  if (!busID) return res.status(400).send("busID es obligatorio");
+  const { busID } = req.query;
+  if (!busID) return res.status(400).json({ error: "busID es obligatorio" });
 
   try {
-    const doc = await db.collection("ubicaciones").doc(busID).get();
+    const doc = await db.collection("publicaciones").doc(busID).get();
+    if (!doc.exists) return res.status(404).json({ error: "Ubicación no encontrada" });
 
-    if (!doc.exists) {
-      return res.status(404).send("Ubicación no encontrada");
-    }
-
-    return res.status(200).json(doc.data());
+    const { latitud, longitud } = doc.data();
+    res.status(200).json({ latitud, longitud });
   } catch (error) {
-    console.error("ERROR obtenerUbicacionBus:", error);
-    return res.status(500).send("Error al obtener ubicación");
+    console.error("❌ ERROR obtenerUbicacionBus:", error);
+    res.status(500).json({ error: "Error al obtener ubicación" });
   }
 };
 
 module.exports = {
-  registrarUsuario,
-  obtenerBusesPorRuta,
+  listarPublicacionesActivas,
   obtenerUbicacionBus
 };
