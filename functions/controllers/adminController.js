@@ -1,4 +1,4 @@
-const { db } = require("../services/firebase");
+const db = require("../services/firebase"); // Asegúrate de que solo se exporte 'db' directamente
 
 const visualizarPublicaciones = async (req, res) => {
   try {
@@ -7,7 +7,6 @@ const visualizarPublicaciones = async (req, res) => {
 
     snapshot.forEach(doc => {
       const data = doc.data();
-
       publicaciones.push({
         id: doc.id,
         nombre: data.nombre,
@@ -26,11 +25,6 @@ const visualizarPublicaciones = async (req, res) => {
     res.status(500).json({ error: "Error al cargar publicaciones" });
   }
 };
-
-module.exports = {
-  visualizarPublicaciones
-};
-
 
 const eliminarPublicacion = async (req, res) => {
   const { busID } = req.params;
