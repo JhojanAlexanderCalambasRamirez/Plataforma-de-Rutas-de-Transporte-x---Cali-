@@ -2,6 +2,14 @@ async function obtenerConductores() {
   try {
     const res = await fetch(`${baseURL}/admin/publicaciones`);
     const data = await res.json();
+
+    // Validar que la respuesta sea un arreglo
+    if (!Array.isArray(data)) {
+      console.error("⚠️ Respuesta inesperada:", data);
+      alert("Error al cargar publicaciones. Intenta más tarde.");
+      return;
+    }
+
     const lista = document.getElementById("listaConductores");
     lista.innerHTML = "";
 
@@ -19,7 +27,8 @@ async function obtenerConductores() {
       lista.appendChild(li);
     });
   } catch (error) {
-    console.error("Error al obtener publicaciones:", error);
+    console.error("❌ Error al obtener publicaciones:", error);
+    alert("Hubo un problema al obtener las publicaciones.");
   }
 }
 
@@ -29,9 +38,16 @@ async function eliminarPublicacion(busID) {
       method: "DELETE"
     });
     const result = await res.json();
-    alert(result.mensaje || "Eliminado");
-    obtenerConductores(); // Recargar lista
+
+    if (res.ok) {
+      alert(result.mensaje || "Publicación eliminada.");
+      obtenerConductores(); // Recargar lista
+    } else {
+      console.error("⚠️ Error al eliminar:", result);
+      alert(result.error || "No se pudo eliminar la publicación.");
+    }
   } catch (error) {
-    console.error("Error al eliminar publicación:", error);
+    console.error("❌ Error al eliminar publicación:", error);
+    alert("Hubo un problema al eliminar la publicación.");
   }
 }
