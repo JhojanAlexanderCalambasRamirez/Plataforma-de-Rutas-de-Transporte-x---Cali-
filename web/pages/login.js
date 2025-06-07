@@ -13,7 +13,7 @@ document.getElementById("formLogin").addEventListener("submit", function (e) {
 
   if (usuario === USER && password === PASSWORD) {
     localStorage.setItem("adminAutenticado", "true");
-    window.location.href = "./pages/admin.html";
+    window.location.href = "./admin.html";
   } else {
     mensaje.textContent = "❌ Credenciales inválidas.";
     mensaje.style.color = "red";
