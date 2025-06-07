@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Conductor - Rutas Valle</title>
+    <link rel="stylesheet" href="../Styles/styleConductor.css" />
+</head>
+
+<body>
+    <h1>Conductor - Registro de Ruta</h1>
+    <!-- ... -->
+    <form id="formConductor">
+        <label>Nombre:<input type="text" name="nombre" required /></label><br>
+        <label>Placa:<input type="text" name="placa" required /></label><br>
+        <label>Ruta Asignada:<input type="text" name="rutaAsignada" required /></label><br>
+
+        <!-- Campos ocultos para lat/lng -->
+        <input type="hidden" name="latitud" />
+        <input type="hidden" name="longitud" />
+
+        <button type="submit">Registrar Ruta</button>
+    </form>
+    <div id="mensajeRegistro"></div>
+
+    <script src="../app.js"></script>
+    <script src="conductor.js"></script>
+
+</body>
+
+</html>

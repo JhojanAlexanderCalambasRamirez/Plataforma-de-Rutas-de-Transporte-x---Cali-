@@ -1,0 +1,29 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #eaf3f9;
+  padding: 2rem;
+  margin: 0;
+}
+
+h1 {
+  color: #007BFF;
+  text-align: center;
+}
+
+section {
+  margin-top: 1.5rem;
+}
+
+.panel-conductor {
+  background-color: white;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+#mapa {
+  width: 100%;
+  height: 400px;
+  margin-top: 1rem;
+}
