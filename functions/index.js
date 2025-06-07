@@ -24,7 +24,7 @@ app.use("/conductor", conductorRoutes);
 app.use("/usuario", usuarioRoutes);
 
 // Iniciar servidor
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`🚀 Backend corriendo en http://localhost:${PORT}`);
 });
